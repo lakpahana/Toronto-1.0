@@ -7,6 +7,7 @@ import com.torontoOrg.contrack.service.ContractItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -118,7 +119,9 @@ public class ContractItemServiceIMPL implements ContractItemService {
 
     @Override
     public List<ContractItemDTO> getByDate(String date) {
-        List<ContractItem> contractItemList = contractItemsRepo.findByAddedDate(date);
+        //cast to date
+        LocalDateTime dateTime = LocalDateTime.parse(date);
+        List<ContractItem> contractItemList = contractItemsRepo.findByAddedDate(dateTime);
         List<ContractItemDTO> contractItemDTOList = new ArrayList<>();
         for (ContractItem contractItem : contractItemList) {
             ContractItemDTO contractItemDTO = new ContractItemDTO(
