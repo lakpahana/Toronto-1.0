@@ -1,23 +1,26 @@
 package com.torontoOrg.contrack.service;
 
 import com.torontoOrg.contrack.dto.ContractItemDTO;
+import com.torontoOrg.contrack.dto.request.NewContractItemSaveRequest;
+import com.torontoOrg.contrack.dto.request.UpdateContractItemRequest;
+import com.torontoOrg.contrack.dto.response.ContractItemResponse;
 
 import java.util.List;
 
 public interface ContractItemService {
 
 
-    void saveItem(ContractItemDTO contractItemDTO);
+    String saveItem(NewContractItemSaveRequest newContractItemSaveRequest);
 
-    List<ContractItemDTO> getAll();
+    ContractItemResponse getItemById(int id);
 
-    ContractItemDTO getItemById(int id);
 
-    String deleteItem(int id);
+    List<ContractItemResponse> getDistinctItems();
 
-    void updateItem(ContractItemDTO contractItemDTO);
+    String updateItem(UpdateContractItemRequest updateContractItemRequest);
 
-    List<ContractItemDTO> getByDate(String date);
+    String saveList(List<UpdateContractItemRequest> updateContractItemRequestList);
 
-    void saveAll(List<ContractItemDTO> contractItemDTOList);
+
+    List<ContractItemResponse> getItemsByDate(String date);
 }

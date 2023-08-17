@@ -1,6 +1,9 @@
 package com.torontoOrg.contrack.controller;
 
 import com.torontoOrg.contrack.dto.ContractItemDTO;
+import com.torontoOrg.contrack.dto.request.NewContractItemSaveRequest;
+import com.torontoOrg.contrack.dto.request.UpdateContractItemRequest;
+import com.torontoOrg.contrack.dto.response.ContractItemResponse;
 import com.torontoOrg.contrack.service.ContractItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -14,97 +17,63 @@ import java.util.List;
 @CrossOrigin
 public class ContractItemController {
 
-@Autowired
+    @Autowired
     private ContractItemService contractItemService;
-
-    //simple get method
-    @GetMapping(
-            "/test"
-    )
-    public String test(){
-        return "test";
-    }
 
     @PostMapping(
             "/save"
     )
-    public String saveCustomer(@RequestBody ContractItemDTO contractItemDTO){
-
-        System.out.println("item " + contractItemDTO.getId());
-
-        contractItemService.saveItem(contractItemDTO);
-        System.out.println("item " + contractItemDTO);
-        return "Saved";
+    public String saveItem(@RequestBody NewContractItemSaveRequest newContractItemSaveRequest) {
+        String res = contractItemService.saveItem(newContractItemSaveRequest);
+        return res;
     }
 
-    //get all items
-
-    @GetMapping(
-            "/getAll"
-    )
-    public List<ContractItemDTO> getAll(){
-        System.out.println("get all items");
-        return contractItemService.getAll();
-    }
-
-
-    //get item by id
-
+    //get by id
     @GetMapping(
             "/get/{id}"
     )
-
-    public ContractItemDTO getItemById(@PathVariable("id") int id){
+    public ContractItemResponse getItemById(@PathVariable int id) {
         return contractItemService.getItemById(id);
     }
 
+    //get distinct items by itemid
+    @GetMapping(
+            "/getDistinctItems"
+    )
 
+    public List<ContractItemResponse> getDistinctItems() {
+        return contractItemService.getDistinctItems();
+    }
 
-
-    //update item
-
+    //Update item
     @PutMapping(
             "/update"
     )
-
-    public String updateItem(@RequestBody ContractItemDTO contractItemDTO){
-
-
-
-        contractItemService.updateItem(contractItemDTO);
-        return "Updated";
+    public String updateItem(@RequestBody UpdateContractItemRequest updateContractItemRequest) {
+        contractItemService.updateItem(updateContractItemRequest);
+        return "Item Updated";
     }
 
-    //delete item
-
-    @DeleteMapping(
-            "/delete/{id}"
-    )
-    public String deleteItem(@PathVariable("id") int id){
-        String resp = contractItemService.deleteItem(id);
-        return resp;
-    }
-
-
-    //get by date
-    @GetMapping(
-            "/getByDate/{date}"
-    )
-    public List<ContractItemDTO> getByDate(@PathVariable("date") String date){
-
-        return contractItemService.getByDate(date);
-    }
-
-
-    //add multiple items at once
-
+    //save list of items
     @PostMapping(
-            "/saveAll"
+            "/saveList"
     )
-    public String saveAll(@RequestBody List<ContractItemDTO> contractItemDTOList){
-        contractItemService.saveAll(contractItemDTOList);
-        return "Saved";
+
+    public String saveList(@RequestBody List<UpdateContractItemRequest> updateContractItemRequestList) {
+        contractItemService.saveList(updateContractItemRequestList);
+        return "List Saved";
     }
+
+    //GET list of items for a date
+    @GetMapping(
+            "/getItemsByDate/{date}"
+    )
+
+    public List<ContractItemResponse> getItemsByDate(@PathVariable String date) {
+        return contractItemService.getItemsByDate(date);
+    }
+
+
 
 
 }
