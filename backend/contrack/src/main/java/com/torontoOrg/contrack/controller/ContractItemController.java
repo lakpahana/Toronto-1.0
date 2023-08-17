@@ -96,4 +96,15 @@ public class ContractItemController {
     }
 
 
+    //add multiple items at once
+
+    @PostMapping(
+            "/saveAll"
+    )
+    public String saveAll(@RequestBody List<ContractItemDTO> contractItemDTOList){
+        contractItemService.saveAll(contractItemDTOList);
+        return "Saved";
+    }
+
+
 }

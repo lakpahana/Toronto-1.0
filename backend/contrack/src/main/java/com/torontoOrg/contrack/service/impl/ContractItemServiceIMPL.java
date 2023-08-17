@@ -137,4 +137,22 @@ public class ContractItemServiceIMPL implements ContractItemService {
         }
         return contractItemDTOList;
     }
+
+    @Override
+    public void saveAll(List<ContractItemDTO> contractItemDTOList) {
+
+        for (ContractItemDTO contractItemDTO : contractItemDTOList) {
+            ContractItem contractItem = new ContractItem(
+                    contractItemDTO.getId(),
+                    contractItemDTO.getItem(),
+                    contractItemDTO.getDescription(),
+                    contractItemDTO.getLocation(),
+                    contractItemDTO.getDayTotal(),
+                    contractItemDTO.getTotalToDate()
+            );
+            contractItemsRepo.save(contractItem);
+        }
+
+
+    }
 }

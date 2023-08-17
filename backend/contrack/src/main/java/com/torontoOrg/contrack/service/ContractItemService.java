@@ -18,4 +18,6 @@ public interface ContractItemService {
     void updateItem(ContractItemDTO contractItemDTO);
 
     List<ContractItemDTO> getByDate(String date);
+
+    void saveAll(List<ContractItemDTO> contractItemDTOList);
 }
