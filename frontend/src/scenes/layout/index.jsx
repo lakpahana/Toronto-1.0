@@ -29,13 +29,12 @@ const Layout = () => {
           <Link sx={{ color: "white" }} href="/add-details">
             ADD DETAILS
           </Link>
-          <Link sx={{ color: "white" }} href="/">
+          <Link sx={{ color: "white" }} href="/daily-report">
             DAILY REPORTS
           </Link>
         </Box>
       </Box>
       <Outlet />
-      <Box></Box>
     </Box>
   );
 };

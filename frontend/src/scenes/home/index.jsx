@@ -46,7 +46,7 @@ const Home = () => {
           </Box>
           <Box>
             <Link
-              href="#"
+              href="/daily-report"
               fontWeight="bold"
               fontSize="1.85rem"
               sx={{ color: "white" }}
