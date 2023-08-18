@@ -1,4 +1,4 @@
-package com.torontoOrg.contrack.dto;
+package com.torontoOrg.contrack.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,9 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ContractItemDTO {
+public class ContractItemResponse {
 
-    private int id;
     private int itemId;
     private String item;
     private String description;
@@ -17,6 +16,6 @@ public class ContractItemDTO {
     private String trackingUnit;
     private Double dayTotal;
     private Double totalToDate;
-    private String updatedDate;
+    private String addedDate;
 
 }

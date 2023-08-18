@@ -1,14 +1,19 @@
 package com.torontoOrg.contrack.service.impl;
 
-import com.torontoOrg.contrack.dto.ContractItemDTO;
+import com.torontoOrg.contrack.dto.request.NewContractItemSaveRequest;
+import com.torontoOrg.contrack.dto.request.UpdateContractItemRequest;
+import com.torontoOrg.contrack.dto.response.ContractItemResponse;
 import com.torontoOrg.contrack.entity.ContractItem;
 import com.torontoOrg.contrack.repo.ContractItemsRepo;
 import com.torontoOrg.contrack.service.ContractItemService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -17,142 +22,132 @@ public class ContractItemServiceIMPL implements ContractItemService {
     @Autowired
     private ContractItemsRepo contractItemsRepo;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
 
     @Override
-    public void saveItem(ContractItemDTO contractItemDTO) {
-        ContractItem contractItem = new ContractItem(
-                contractItemDTO.getId(),
-                contractItemDTO.getItem(),
-                contractItemDTO.getDescription(),
-                contractItemDTO.getLocation(),
-                contractItemDTO.getDayTotal(),
-                contractItemDTO.getTotalToDate()
-        );
+    public String saveItem(NewContractItemSaveRequest newContractItemSaveRequest) {
+
+        //generate a new item id
+        int itemId = contractItemsRepo.findTopByItemId();
+        itemId++;
+        ContractItem contractItem = modelMapper.map(newContractItemSaveRequest, ContractItem.class);
+        contractItem.setItemId(itemId);
+        contractItem.setAddedDate(LocalDateTime.now());
+        contractItem.setTotalToDate(newContractItemSaveRequest.getDayTotal());
+
+        //print the item
+        System.out.println(contractItem.toString());
+
         contractItemsRepo.save(contractItem);
+        return "Item Saved";
+    }
+
+
+    @Override
+    public ContractItemResponse getItemById(int id) {
+        ContractItem contractItem = contractItemsRepo.findFirstByItemIdOrderByUpdatedDateDesc(id);
+        ContractItemResponse contractItemResponse = modelMapper.map(contractItem, ContractItemResponse.class);
+        return contractItemResponse;
+
     }
 
     @Override
-    public List<ContractItemDTO> getAll() {
-        System.out.println("get all items");
-        List<ContractItem> contractItemList = contractItemsRepo.findAll();
-        List<ContractItemDTO> contractItemDTOList = new ArrayList<>();
-        for (ContractItem contractItem : contractItemList) {
-            ContractItemDTO contractItemDTO = new ContractItemDTO(
-                    contractItem.getId(),
-                    contractItem.getItem(),
-                    contractItem.getDescription(),
-                    contractItem.getLocation(),
-                    contractItem.getDayTotal(),
-                    contractItem.getTotalToDate(),
-                    contractItem.getAddedDate()
-            );
-            contractItemDTOList.add(contractItemDTO);
+    public List<ContractItemResponse> getDistinctItems() {
+        //get unique items by itemId
+        List<ContractItem> contractItems = contractItemsRepo.findAllByDistinctTopByItemId();
+        List<ContractItemResponse> contractItemResponses = modelMapper.map(contractItems, List.class);
+        return contractItemResponses;
+    }
+
+    @Override
+    public String updateItem(UpdateContractItemRequest updateContractItemRequest) {
+        ContractItem contractItem = modelMapper.map(updateContractItemRequest, ContractItem.class);
+        //get the item by id
+        ContractItem contractItem1 = contractItemsRepo.findFirstByItemIdOrderByUpdatedDateDesc(updateContractItemRequest.getItemId());
+        //if exist
+        if (contractItem1 == null) {
+            throw new RuntimeException("Item not found");
         }
-        return contractItemDTOList;
+        LocalDateTime addedDate = contractItem1.getAddedDate();
+        contractItem.setAddedDate(addedDate);
 
+        double totalToDate = contractItem1.getTotalToDate()  + updateContractItemRequest.getDayTotal();
 
+        contractItem.setTotalToDate(totalToDate);
+
+        contractItemsRepo.save(contractItem);
+
+        return "Item Updated";
     }
 
-    @Override
-    public ContractItemDTO getItemById(int id) {
-        ContractItem contractItem = contractItemsRepo.findById(id).get();
-        ContractItemDTO contractItemDTO = new ContractItemDTO(
-                contractItem.getId(),
-                contractItem.getItem(),
-                contractItem.getDescription(),
-                contractItem.getLocation(),
-                contractItem.getDayTotal(),
-                contractItem.getTotalToDate(),
-                contractItem.getAddedDate()
-        );
-        return contractItemDTO;
-    }
+
 
     @Override
-    public String deleteItem(int id) {
-        //if exist by id
+    public String saveList(List<UpdateContractItemRequest> updateContractItemRequestList) {
+        for (UpdateContractItemRequest updateContractItemRequest : updateContractItemRequestList) {
 
-        if (!contractItemsRepo.findById(id).isPresent()){
-            return "Item not found";
+            //if itemid is null add new item else update item if it exists
+            if (updateContractItemRequest.getItemId() == 0) {
+                //generate a new item id
+                int itemId = contractItemsRepo.findTopByItemId();
+                itemId++;
+                ContractItem contractItem = modelMapper.map(updateContractItemRequest, ContractItem.class);
+                contractItem.setItemId(itemId);
+                contractItem.setAddedDate(LocalDateTime.now());
+                contractItem.setTotalToDate(updateContractItemRequest.getDayTotal());
+
+                //print the item
+                System.out.println(contractItem.toString());
+
+                contractItemsRepo.save(contractItem);
+            } else {
+                ContractItem contractItem = modelMapper.map(updateContractItemRequest, ContractItem.class);
+                //get the item by id
+                ContractItem contractItem1 = contractItemsRepo.findFirstByItemIdOrderByUpdatedDateDesc(updateContractItemRequest.getItemId());
+                //if exist
+                if (contractItem1 == null) {
+                    throw new RuntimeException("Item not found");
+                }
+                LocalDateTime addedDate = contractItem1.getAddedDate();
+                contractItem.setAddedDate(addedDate);
+
+                double totalToDate = contractItem1.getTotalToDate()  + updateContractItemRequest.getDayTotal();
+
+                contractItem.setTotalToDate(totalToDate);
+
+                contractItemsRepo.save(contractItem);
+            }
+
+
         }
-
-        contractItemsRepo.deleteById(id);
-        return "Item Deleted";
+        return "List Saved";
     }
 
     @Override
-    public void updateItem(ContractItemDTO contractItemDTO) {
+    public List<ContractItemResponse> getItemsByDate(String date) {
+        //convert date to local date time
 
-        //if exist by id
+        String dateString = date ;// Replace with your date string
+        LocalDate datew = LocalDate.parse(dateString); // Parse the date part
 
-        if (contractItemsRepo.findById(contractItemDTO.getId()).isPresent()){
+        // Create a LocalTime with midnight time (00:00:00)
+        LocalTime time = LocalTime.MIDNIGHT;
 
+        // Combine the parsed date and the LocalTime to create LocalDateTime
+        LocalDateTime dateTime = LocalDateTime.of(datew, time);
 
+        //start of day
+        LocalDateTime dateTime1 = dateTime.with(LocalTime.MIN);
 
-
-            ContractItem contractItem = contractItemsRepo.findById(contractItemDTO.getId()).get();
-
-            //getprevious day total and total to date
-            int previousDayTotal = contractItem.getDayTotal();
-            int previousTotalToDate = contractItem.getTotalToDate();
-
-            //get current day total and total to date
-            int currentDayTotal = contractItemDTO.getDayTotal();
-            int currentTotalToDate = contractItemDTO.getTotalToDate();
-
-            int newTotal = previousTotalToDate + currentDayTotal;
-
-
-            contractItem.setId(contractItemDTO.getId());
-            contractItem.setItem(contractItemDTO.getItem());
-            contractItem.setDescription(contractItemDTO.getDescription());
-            contractItem.setLocation(contractItemDTO.getLocation());
-            contractItem.setDayTotal(contractItemDTO.getDayTotal());
-            contractItem.setTotalToDate(newTotal);
-            contractItemsRepo.save(contractItem);
-        }
-
-
-
-
+        //end of day
+        LocalDateTime dateTime2 = dateTime.with(LocalTime.MAX);
+        List<ContractItem> contractItems = contractItemsRepo.findAllByUpdatedDateBetween(dateTime1, dateTime2);
+        List<ContractItemResponse> contractItemResponses = modelMapper.map(contractItems, List.class);
+        return contractItemResponses;
     }
 
-    @Override
-    public List<ContractItemDTO> getByDate(String date) {
-        //cast to date
-        LocalDateTime dateTime = LocalDateTime.parse(date);
-        List<ContractItem> contractItemList = contractItemsRepo.findByAddedDate(dateTime);
-        List<ContractItemDTO> contractItemDTOList = new ArrayList<>();
-        for (ContractItem contractItem : contractItemList) {
-            ContractItemDTO contractItemDTO = new ContractItemDTO(
-                    contractItem.getId(),
-                    contractItem.getItem(),
-                    contractItem.getDescription(),
-                    contractItem.getLocation(),
-                    contractItem.getDayTotal(),
-                    contractItem.getTotalToDate(),
-                    contractItem.getAddedDate()
-            );
-            contractItemDTOList.add(contractItemDTO);
-        }
-        return contractItemDTOList;
-    }
 
-    @Override
-    public void saveAll(List<ContractItemDTO> contractItemDTOList) {
-
-        for (ContractItemDTO contractItemDTO : contractItemDTOList) {
-            ContractItem contractItem = new ContractItem(
-                    contractItemDTO.getId(),
-                    contractItemDTO.getItem(),
-                    contractItemDTO.getDescription(),
-                    contractItemDTO.getLocation(),
-                    contractItemDTO.getDayTotal(),
-                    contractItemDTO.getTotalToDate()
-            );
-            contractItemsRepo.save(contractItem);
-        }
-
-
-    }
 }
+
