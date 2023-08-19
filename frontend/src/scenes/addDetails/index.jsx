@@ -15,7 +15,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { makeStyles } from "@mui/styles";
 import { useSaveItemsMutation, useDistinctItemsQuery } from "../../state/api";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -54,11 +54,15 @@ const AddDetails = () => {
 
   const [expanded, setExpanded] = useState(false);
   const [fields, setFields] = useState([]);
-  const [distinctDataFields, setDistinctDataFields] = useState("");
+  const [distinctDataFields, setDistinctDataFields] = useState();
   const [date, setDate] = useState(new Date());
   let [count, setCount] = useState(0);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setDistinctDataFields(distinctData);
+  }, [distinctData]);
 
   const handleChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
@@ -89,12 +93,11 @@ const AddDetails = () => {
     setFields(updatedFields);
   };
   const handleInputChangeInDistinctFields = (id, inputType, value) => {
-    const updatedFields = distinctData.map((field) =>
+    const updatedFields = distinctDataFields.map((field) =>
       field.id === id ? { ...field, [inputType]: value } : field
     );
     setDistinctDataFields(updatedFields);
   };
-
   const handleSubmit = async (event) => {
     event.preventDefault();
     const transformedData = Object.values(fields).map((field) => ({
@@ -105,13 +108,15 @@ const AddDetails = () => {
       item: field.item,
       location: field.location,
       totalToDate: 0,
-      trackingUnit: "M"
+      trackingUnit: "M",
     }));
     const finalData = [...distinctDataFields, ...transformedData];
+    console.log(finalData);
     if (!error) {
-      await saveItems(finalData).then(() => {
-        setFields("");
-      })
+      await saveItems(finalData);
+      setFields("");
+      setDistinctDataFields(finalData);
+      console.log(data);
     } else {
       console.log(error);
     }
@@ -131,8 +136,8 @@ const AddDetails = () => {
                   />
                 </DemoContainer>
               </LocalizationProvider>
-              {distinctData &&
-                distinctData.map((item, index) => (
+              {distinctDataFields &&
+                distinctDataFields.map((item, index) => (
                   <Accordion
                     key={index}
                     expanded={expanded === `panel${index}`}
@@ -144,7 +149,7 @@ const AddDetails = () => {
                       id={`panel${index}bh-header`}
                     >
                       <Typography sx={{ width: "33%", flexShrink: 0 }}>
-                        {item.item}
+                        {item.id}
                       </Typography>
                       <Typography sx={{ color: "text.secondary" }}>
                         {item.description}
