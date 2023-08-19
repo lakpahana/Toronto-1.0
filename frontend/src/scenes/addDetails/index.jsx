@@ -1,8 +1,4 @@
-import {
-  Box,
-  Button,
-  CardContent,
-} from "@mui/material";
+import { Box, Button, CardContent } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
@@ -42,8 +38,9 @@ const useStyles = makeStyles({
 
 const AddDetails = () => {
   const classes = useStyles();
-  const [saveItems, { data, error }] = useSaveItemsMutation();
-  const { data: distinctData } = useDistinctItemsQuery();
+  const [saveItems, { error }] =
+    useSaveItemsMutation();
+  const { data: distinctData, refetch } = useDistinctItemsQuery();
 
   const [expanded, setExpanded] = useState(false);
   const [fields, setFields] = useState([]);
@@ -56,6 +53,10 @@ const AddDetails = () => {
   useEffect(() => {
     setDistinctDataFields(distinctData);
   }, [distinctData]);
+
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
   const handleChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
@@ -104,12 +105,13 @@ const AddDetails = () => {
       trackingUnit: "M",
     }));
     const finalData = [...distinctDataFields, ...transformedData];
-    console.log(finalData);
     if (!error) {
-      await saveItems(finalData);
-      setFields("");
+      const savedData = await saveItems(finalData);
+      setFields([]);
       setDistinctDataFields(finalData);
-      console.log(data);
+      if (savedData.data) {
+        navigate("/daily-report");
+      }
     } else {
       console.log(error);
     }
@@ -121,48 +123,52 @@ const AddDetails = () => {
         <div className={classes.cardBg}>
           <CardContent>
             <form>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DemoContainer components={["DatePicker"]}>
-                  <DatePicker
-                    label={date.toISOString()}
-                    onChange={(newValue) => setDate(newValue)}
-                  />
-                </DemoContainer>
-              </LocalizationProvider>
+              <Box mb="2rem">
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DemoContainer components={["DatePicker"]}>
+                    <DatePicker
+                      label={date.toISOString()}
+                      onChange={(newValue) => setDate(newValue)}
+                    />
+                  </DemoContainer>
+                </LocalizationProvider>
+              </Box>
               <DistinctItems
                 distinctDataFields={distinctDataFields}
                 expanded={expanded}
                 handleChange={handleChange}
                 handleInputChange={handleInputChangeInDistinctFields}
               />
-              {Array.isArray(fields) && fields.length > 0 ? (
-                <NewItems fields={fields} handleInputChange={handleInputChange} />
-              ) : null}
-            </form>
-            <Box
-              m="2rem 0 0 0"
-              display="flex"
-              gap="1rem"
-              width="100%"
-              justifyContent="center"
-            >
-              <Button variant="contained" color="primary" onClick={addField}>
-                New
-              </Button>
-              <Button
-                type="submit"
-                variant="contained"
-                color="secondary"
-                onClick={handleSubmit}
+              <NewItems fields={fields} handleInputChange={handleInputChange} />
+              <Box
+                m="2rem 0 0 0"
+                display="flex"
+                gap="1rem"
+                width="100%"
+                justifyContent="center"
               >
-                Submit
-              </Button>
-              {count !== 0 && (
-                <Button variant="contained" color="error" onClick={deleteField}>
-                  Delete
+                <Button variant="contained" color="primary" onClick={addField}>
+                  New
                 </Button>
-              )}
-            </Box>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="secondary"
+                  onClick={handleSubmit}
+                >
+                  Submit
+                </Button>
+                {count !== 0 && (
+                  <Button
+                    variant="contained"
+                    color="error"
+                    onClick={deleteField}
+                  >
+                    Delete
+                  </Button>
+                )}
+              </Box>
+            </form>
           </CardContent>
         </div>
       </Box>

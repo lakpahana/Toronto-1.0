@@ -41,6 +41,7 @@ const DistinctItems = ({
               <FormControl sx={{ m: "2rem 0 0 0" }}>
                 <InputLabel sx={{ color: "#000" }}>Day Total</InputLabel>
                 <Input
+                type="number"
                 placeholder="0"
                   size="small"
                   onChange={(e) =>

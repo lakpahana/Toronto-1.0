@@ -21,7 +21,6 @@ const NewItems = ({ fields, handleInputChange }) => {
             fullWidth
             id="standard-textarea"
             label="Description"
-            value={field.description}
             onChange={(e) =>
               handleInputChange(field.id, "description", e.target.value)
             }
@@ -29,6 +28,7 @@ const NewItems = ({ fields, handleInputChange }) => {
             variant="standard"
             InputProps={{
               style: { color: "#fff", fontSize: "20px" },
+              required: true,
             }}
             InputLabelProps={{
               style: { color: "#fff" },
@@ -66,6 +66,7 @@ const NewItems = ({ fields, handleInputChange }) => {
           <FormControl sx={{ m: "2rem 0 0 0" }}>
             <InputLabel sx={{ color: "#fff" }}>Day Total</InputLabel>
             <Input
+            type="number"
               size="small"
               sx={{
                 color: "#fff",
