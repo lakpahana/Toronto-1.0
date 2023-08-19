@@ -1,15 +1,7 @@
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
   Box,
   Button,
   CardContent,
-  FormControl,
-  Input,
-  InputLabel,
-  TextField,
-  Typography,
 } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -18,8 +10,9 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import React, { useEffect, useState } from "react";
 import { makeStyles } from "@mui/styles";
 import { useSaveItemsMutation, useDistinctItemsQuery } from "../../state/api";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useNavigate } from "react-router-dom";
+import DistinctItems from "../../components/DistinctItems";
+import NewItems from "../../components/NewItems";
 
 const useStyles = makeStyles({
   cardBg: {
@@ -136,131 +129,15 @@ const AddDetails = () => {
                   />
                 </DemoContainer>
               </LocalizationProvider>
-              {distinctDataFields &&
-                distinctDataFields.map((item, index) => (
-                  <Accordion
-                    key={index}
-                    expanded={expanded === `panel${index}`}
-                    onChange={handleChange(`panel${index}`)}
-                  >
-                    <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
-                      aria-controls={`panel${index}bh-content`}
-                      id={`panel${index}bh-header`}
-                    >
-                      <Typography sx={{ width: "33%", flexShrink: 0 }}>
-                        {item.id}
-                      </Typography>
-                      <Typography sx={{ color: "text.secondary" }}>
-                        {item.description}
-                      </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <FormControl sx={{ m: "2rem 0 0 0" }}>
-                        <InputLabel sx={{ color: "#000" }}>
-                          Day Total
-                        </InputLabel>
-                        <Input
-                          size="small"
-                          onChange={(e) =>
-                            handleInputChangeInDistinctFields(
-                              item.id,
-                              "dayTotal",
-                              e.target.value
-                            )
-                          }
-                        />
-                      </FormControl>
-                    </AccordionDetails>
-                  </Accordion>
-                ))}
-              {fields &&
-                fields.map((field) => (
-                  <Box
-                    key={field.id}
-                    className="form-field"
-                    m="2rem 0 0 0"
-                    pb="2rem"
-                  >
-                    <Typography variant="h6" sx={{ color: "#fff" }}>
-                      Item {field.id}
-                    </Typography>
-                    <TextField
-                      size="small"
-                      fullWidth
-                      id="standard-textarea"
-                      label="Description"
-                      value={field.description}
-                      onChange={(e) =>
-                        handleInputChange(
-                          field.id,
-                          "description",
-                          e.target.value
-                        )
-                      }
-                      multiline
-                      variant="standard"
-                      InputProps={{
-                        style: { color: "#fff", fontSize: "20px" },
-                      }}
-                      InputLabelProps={{
-                        style: { color: "#fff" },
-                      }}
-                      sx={{ m: "0 0 2rem 0" }}
-                    />
-                    <FormControl sx={{ width: "100%" }}>
-                      <InputLabel sx={{ color: "#fff" }}>Location</InputLabel>
-                      <Input
-                        size="small"
-                        sx={{
-                          color: "#fff",
-                          fontSize: "20px",
-                          paddingLeft: "15px",
-                        }}
-                        onChange={(e) =>
-                          handleInputChange(
-                            field.id,
-                            "location",
-                            e.target.value
-                          )
-                        }
-                      />
-                    </FormControl>
-                    <FormControl sx={{ width: "100%", marginTop: "2rem" }}>
-                      <InputLabel sx={{ color: "#fff" }}>Item</InputLabel>
-                      <Input
-                        size="small"
-                        sx={{
-                          color: "#fff",
-                          fontSize: "20px",
-                          paddingLeft: "15px",
-                        }}
-                        onChange={(e) =>
-                          handleInputChange(field.id, "item", e.target.value)
-                        }
-                      />
-                    </FormControl>
-                    <FormControl sx={{ m: "2rem 0 0 0" }}>
-                      <InputLabel sx={{ color: "#fff" }}>Day Total</InputLabel>
-                      <Input
-                        size="small"
-                        sx={{
-                          color: "#fff",
-                          fontSize: "20px",
-                          paddingLeft: "15px",
-                        }}
-                        value={field.dayTotal}
-                        onChange={(e) =>
-                          handleInputChange(
-                            field.id,
-                            "dayTotal",
-                            e.target.value
-                          )
-                        }
-                      />
-                    </FormControl>
-                  </Box>
-                ))}
+              <DistinctItems
+                distinctDataFields={distinctDataFields}
+                expanded={expanded}
+                handleChange={handleChange}
+                handleInputChange={handleInputChangeInDistinctFields}
+              />
+              {Array.isArray(fields) && fields.length > 0 ? (
+                <NewItems fields={fields} handleInputChange={handleInputChange} />
+              ) : null}
             </form>
             <Box
               m="2rem 0 0 0"
