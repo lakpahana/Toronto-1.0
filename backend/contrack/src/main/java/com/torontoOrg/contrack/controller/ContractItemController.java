@@ -6,6 +6,7 @@ import com.torontoOrg.contrack.dto.request.UpdateContractItemRequest;
 import com.torontoOrg.contrack.dto.response.ContractItemResponse;
 import com.torontoOrg.contrack.service.ContractItemService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -59,9 +60,9 @@ public class ContractItemController {
             "/saveList"
     )
 
-    public String saveList(@RequestBody List<UpdateContractItemRequest> updateContractItemRequestList) {
+    public ResponseEntity<String> saveList(@RequestBody List<UpdateContractItemRequest> updateContractItemRequestList) {
         contractItemService.saveList(updateContractItemRequestList);
-        return "List Saved";
+        return ResponseEntity.ok("{\"data\": \"List Saved\"}");
     }
 
     //GET list of items for a date
