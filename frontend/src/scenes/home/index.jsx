@@ -34,7 +34,7 @@ const Home = () => {
           TORONTO
         </Typography>
         <Box display="flex" gap="1rem">
-          <Box borderRight="5px solid #fff" p="0 1rem 0 0">
+          {/* <Box borderRight="5px solid #fff" p="0 1rem 0 0">
             <Link
               href="/add-details"
               fontWeight="bold"
@@ -43,7 +43,7 @@ const Home = () => {
             >
               Add Details
             </Link>
-          </Box>
+          </Box> */}
           <Box>
             <Link
               href="/daily-report"
